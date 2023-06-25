@@ -1,0 +1,18 @@
+{
+    "get_simulation_time": "10:00:00",
+    "simulation_mode": "false",
+    "simulation_optionright": "P",
+    "simulation_quantity": 5,
+    "simulation_action": "Sell",
+
+    "get_cover_time": "17:54:30",
+    "cover_mode": "true",
+    "cover_put_strike": 15200,
+    "cover_call_strike": 15200,
+    "cover_quantity": 3,
+    "cover_gap_time": 20,
+
+    "sell_call_quantity": 1,
+    "buy_call_quantity": 1,
+    "buy_call_price":0.1
+}
