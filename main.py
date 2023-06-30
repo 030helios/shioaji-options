@@ -6,7 +6,7 @@ import time
 import datetime
 import json
 import threading
-from threading import Event
+from threading import Thread, Lock, Event
 
 import shioaji as sj
 import login.shioaji_login as shioaji_login
@@ -20,6 +20,7 @@ import tools.get_simulate_positions as positions
 import tools.cover as cover
 import tools.contract as contract
 
+waitForConfigLock = Lock()
 # %%
 def update_config():
     """
@@ -39,7 +40,7 @@ def update_config():
 
     :return: None
     """
-
+    firstTime = True
     pre_get_simulation_time = None
     pre_simulation_mode = None
     pre_simulation_optionright = None
@@ -155,7 +156,9 @@ def update_config():
                 pre_buy_call_price = globals.buy_call_price
 
             time.sleep(1)
-
+        if firstTime:
+            waitForConfigLock.release()
+            firstTime = False
 
 
 # %%
@@ -365,9 +368,16 @@ def main():
             globals.positions = [positions.read_position()] #讀取上次執行還未平倉之模擬倉位
         else:
             globals.positions = positions.read_position()
-            
+
+    waitForConfigLock.acquire()
+    # Start update config thread. All config variable will be updated every second.
+    update_config_thread = threading.Thread(target = update_config)
+    update_config_thread.start()
+    time.sleep(0.6)
+
     # log in
-    globals.api = shioaji_login.login()
+    waitForConfigLock.acquire()
+    globals.api = shioaji_login.login(globals.simulation_mode)
     globals.api.set_order_callback(positions.place_cb)
 
     snap.get_snap_options()

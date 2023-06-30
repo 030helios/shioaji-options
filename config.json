@@ -1,6 +1,6 @@
 {
     "get_simulation_time": "10:00:00",
-    "simulation_mode": "false",
+    "simulation_mode": "true",
     "simulation_optionright": "P",
     "simulation_quantity": 5,
     "simulation_action": "Sell",
