@@ -287,7 +287,7 @@ def limit_sell_call_order():
             price=price, # strike_price * 10%, and let price be 10 point as one jump
             quantity=globals.sell_call_quantity, # 根據config.json的口數
             price_type=sj.constant.StockPriceType.LMT, #MKT: 市價 LMT: 限價
-            order_type=sj.constant.FuturesOrderType.ROD, # 當日有效
+            order_type=sj.constant.OrderType.ROD, # 當日有效
             octype=sj.constant.FuturesOCType.Auto, #倉別，設定成自動
             OptionRight=sj.constant.OptionRight.Call, #選擇權類型
             account=globals.api.futopt_account #下單帳戶指定期貨帳戶
@@ -335,7 +335,7 @@ def limit_buy_call_order():
             price=globals.buy_call_price, # strike_price * 10%, and let price be 10 point as one jump
             quantity=globals.buy_call_quantity, # 根據config.json的口數
             price_type=sj.constant.StockPriceType.LMT, #MKT: 市價 LMT: 限價
-            order_type=sj.constant.FuturesOrderType.ROD, # 當日有效
+            order_type=sj.constant.OrderType.ROD, # 當日有效
             octype=sj.constant.FuturesOCType.Auto, #倉別，設定成自動
             OptionRight=sj.constant.OptionRight.Call, #選擇權類型
             account=globals.api.futopt_account #下單帳戶指定期貨帳戶
