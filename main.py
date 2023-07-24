@@ -384,11 +384,6 @@ def main():
     snap.get_at_the_money_info()
     print("程式始執行之價平和檔位及成交點數和: ", globals.at_the_money_code, globals.at_the_money)
 
-    # Start update config thread. All config variable will be updated every second.
-    update_config_thread = threading.Thread(target = update_config)
-    update_config_thread.start()
-    time.sleep(0.6)
-
     update_snap_options_thread = threading.Thread(target = update_snap_options)
     update_snap_options_thread.start()
     time.sleep(0.6)
