@@ -21,26 +21,21 @@ def login(sim):
     ca_path = ca_path + ca_name
     #ca_path = os.path.abspath(ca_path)
 
-    #to do
     api = sj.Shioaji(simulation=sim) 
-    api_login = api.login(
-        api_key="8iS351Teaj7bJk9RFJZdeLbg7h9fPAzPSYzA8z9tT1Yg",     # 請修改此處
-        secret_key="9FBDD72PypmrsxpUJzBTVtFyiVyb2et7XE2sWzmfL2RH"
-    )
+    # api_login = api.login(
+    #     api_key="8iS351Teaj7bJk9RFJZdeLbg7h9fPAzPSYzA8z9tT1Yg",     # 請修改此處
+    #     secret_key="9FBDD72PypmrsxpUJzBTVtFyiVyb2et7XE2sWzmfL2RH"
+    # )
     
-    '''
     api_login = api.login(
         person_id = account_data['person_id'],
-        passwd = account_data['passwd'] ,
+        passwd = account_data['passwd'], 
         #contracts_cb=lambda security_type: print(f"{repr(security_type)} fetch done.")
     )
-    '''
     
     print(f'Login with ID {account_data["person_id"]}')
     print(f'Login status: {api_login}')
     
-    #to do
-    '''
     activate = api.activate_ca(ca_path=ca_path, ca_passwd=account_data['ca_passwd'], person_id=account_data['person_id'])
 
     if(activate):
@@ -49,6 +44,5 @@ def login(sim):
     else:
         print(f'Failed! Can not activate CA at the path {ca_path}')
         print('\n')
-    '''
     
     return api

@@ -19,7 +19,7 @@ def place_cb(stat, msg):
 
     return: none
     """
-    if(stat == sj.constant.OrderState.FuturesDeal):
+    if(stat == sj.constant.OrderState.FDeal):
         print('A deal has been detected.')
         print(f'Deal information: code:{msg["code"]}, action:{msg["action"]}, price:{msg["price"]}, quantity:{msg["quantity"]}, optionright:{msg["optionright"]}')
         print(f'Delivery month:{msg["delivery_month"]}, security type: {msg["security_type"]}')
@@ -132,7 +132,7 @@ def send_test_msg(
     code,
     delivery_month,
     optionright,
-    stat=sj.constant.OrderState.FuturesDeal,
+    stat=sj.constant.OrderState.FDeal,
     security_type='OPT'
 ):
     """
