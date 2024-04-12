@@ -12,7 +12,4 @@ def fill_contract(option_code):
     
     return: str
     """
-    ret = globals.api.Contracts.Options[option_code]
-    if ret is None:
-        print("null contract")
-    return ret
+    return globals.api.Contracts.Options[option_code]

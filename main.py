@@ -6,7 +6,7 @@ import time
 import datetime
 import json
 import threading
-from threading import Thread, Lock, Event
+from threading import Event
 
 import shioaji as sj
 import login.shioaji_login as shioaji_login
@@ -20,7 +20,6 @@ import tools.get_simulate_positions as positions
 import tools.cover as cover
 import tools.contract as contract
 
-waitForConfigLock = Lock()
 # %%
 def update_config():
     """
@@ -40,7 +39,7 @@ def update_config():
 
     :return: None
     """
-    firstTime = True
+
     pre_get_simulation_time = None
     pre_simulation_mode = None
     pre_simulation_optionright = None
@@ -55,8 +54,6 @@ def update_config():
     pre_cover_gap_time = None
 
     pre_sell_call_quantity = None
-    pre_buy_call_quantity = None
-    pre_buy_call_price = None
 
     while(True):
 
@@ -95,8 +92,6 @@ def update_config():
             globals.cover_quantity = config_data['cover_quantity']
             globals.cover_gap_time = config_data['cover_gap_time']
             globals.sell_call_quantity = config_data['sell_call_quantity']
-            globals.buy_call_quantity = config_data['buy_call_quantity']
-            globals.buy_call_price = config_data['buy_call_price']
 
             ### detect ###
             if(pre_get_simulation_time != globals.get_simulation_time):
@@ -147,18 +142,8 @@ def update_config():
                 print(f'Sell call quantity has been set to {globals.sell_call_quantity}')
                 pre_sell_call_quantity = globals.sell_call_quantity
 
-            if(pre_buy_call_quantity != globals.buy_call_quantity):
-                print(f'Buy call quantity has been set to {globals.buy_call_quantity}')
-                pre_buy_call_quantity = globals.buy_call_quantity
-            
-            if(pre_buy_call_price != globals.buy_call_price):
-                print(f'Buy call price has been set to {globals.buy_call_price}')
-                pre_buy_call_price = globals.buy_call_price
-
             time.sleep(1)
-        if firstTime:
-            waitForConfigLock.release()
-            firstTime = False
+
 
 
 # %%
@@ -253,7 +238,7 @@ def load_position():
         print("None")
 
 # %%
-def limit_sell_call_order():
+def limit_order():
     """
     每日開盤前，掛最接近台灣指數收盤的履約價N口sell call漲停價，N由globals.sell_call_quatity決定
 
@@ -298,55 +283,7 @@ def limit_sell_call_order():
 
     trade = globals.api.place_order(daily_limit_contract, order)
     print('***')
-    log_msg = f'A daily sell call limit order {trade} is already sent!\n'
-    print(log_msg)
-    message_log.write_log(log_msg)
-    print('***\n')
-
-# %%
-def limit_buy_call_order():
-    """
-    每日開盤前，掛最接近台灣指數收盤的履約價N口buy call跌停價，N由globals.buy_call_quatity決定
-    成交價則由globals.buy_call_price決定
-
-    :global param: buy_call_quantity
-    :global param: buy_call_price
-    :global param: api
-    :return:  None
-    """
-
-    cover_day = datetime.datetime.today()
-    contractname = snap.get_opt_txnum(cover_day)
-
-    contract_snap = globals.api.snapshots([globals.api.Contracts.Indexs.TSE.TSE001])[0]
-    close=contract_snap.close # get TSE001's current market price 
-    close = int(close - close/10)
-
-    # Get proper close strike price
-    close_div = int(close / 100) * 100
-    close_mod = close % 100
-    if close_mod >= 0 and close_mod < 50:
-        close = close_div + 200
-    else:
-        close = close_div + 300
-
-    cover_call_code = contractname + str(close) + snap.get_option_code("C")
-
-    daily_limit_contract = contract.fill_contract(cover_call_code)
-    order = globals.api.Order(
-            action=sj.constant.Action.Buy,
-            price=globals.buy_call_price, # strike_price * 10%, and let price be 10 point as one jump
-            quantity=globals.buy_call_quantity, # 根據config.json的口數
-            price_type=sj.constant.StockPriceType.LMT, #MKT: 市價 LMT: 限價
-            order_type=sj.constant.FuturesOrderType.ROD, # 當日有效
-            octype=sj.constant.FuturesOCType.Auto, #倉別，設定成自動
-            OptionRight=sj.constant.OptionRight.Call, #選擇權類型
-            account=globals.api.futopt_account #下單帳戶指定期貨帳戶
-        )
-
-    trade = globals.api.place_order(daily_limit_contract, order)
-    print('***')
-    log_msg = f'A daily buy call limit order {trade} is already sent!\n'
+    log_msg = f'A daily limit order {trade} is already sent!\n'
     print(log_msg)
     message_log.write_log(log_msg)
     print('***\n')
@@ -368,21 +305,19 @@ def main():
             globals.positions = [positions.read_position()] #讀取上次執行還未平倉之模擬倉位
         else:
             globals.positions = positions.read_position()
-
-    waitForConfigLock.acquire()
-    # Start update config thread. All config variable will be updated every second.
-    update_config_thread = threading.Thread(target = update_config)
-    update_config_thread.start()
-    time.sleep(0.6)
-
+            
     # log in
-    waitForConfigLock.acquire()
-    globals.api = shioaji_login.login(globals.simulation_mode)
+    globals.api = shioaji_login.login()
     globals.api.set_order_callback(positions.place_cb)
 
     snap.get_snap_options()
     snap.get_at_the_money_info()
     print("程式始執行之價平和檔位及成交點數和: ", globals.at_the_money_code, globals.at_the_money)
+
+    # Start update config thread. All config variable will be updated every second.
+    update_config_thread = threading.Thread(target = update_config)
+    update_config_thread.start()
+    time.sleep(0.6)
 
     update_snap_options_thread = threading.Thread(target = update_snap_options)
     update_snap_options_thread.start()
@@ -396,9 +331,7 @@ def main():
     price_checker_thread.start()
     
     ### 在開盤前預掛前日最接近台灣指數(TSE)收盤價之Sell call漲停單
-    limit_sell_call_order()
-    time.sleep(1)
-    limit_buy_call_order()
+    limit_order()
 
     ### 訂閱平倉檔次之bidask ###
     cover_call_code, cover_put_code = cover.get_cover_code()

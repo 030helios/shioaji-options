@@ -1,9 +1,8 @@
 {
-  "person_id": "A123456789",
-  "passwd": "passwd",
+  "person_id": "L125492899",
+  "passwd": "Shio36966313",
   
-  "ca_path": "C:/sinopac/",
+  "ca_path": "./login/",
   "ca_name": "Sinopac.pfx",
-  "ca_passwd": "A123456789"
-  
+  "ca_passwd": "L125492899"
 }
