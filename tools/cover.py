@@ -67,9 +67,9 @@ def judge_symbol(code, bidask):
         
 
 # %%
-def get_trade(cp):
+def get_price(cp):
     """
-    得到json檔中call put各自的trade資訊 每次只平倉一口
+    得到json檔中call put各自的price資訊
     
     :param: cp (str)
     :global param: api
@@ -89,6 +89,22 @@ def get_trade(cp):
         price = globals.third_best_put_buy_price
     else:
         return None
+
+    return optionright, price
+
+# %%
+def get_trade(optionright, price):
+    """
+    得到json檔中call put各自的trade資訊 每次只平倉一口
+    
+    :param: cp (str)
+    :global param: api
+    :global param: cover_call_contract
+    :global param: cover_put_contract
+    :global param: third_best_buy_price
+
+    return: none
+    """
     order = globals.api.Order(
         action=sj.constant.Action.Buy,
         price=price,
@@ -107,8 +123,8 @@ def get_trade(cp):
     print(log_msg)
     message_log.write_log(log_msg)
     print('***\n')
-
-    return trade, price
+    
+    return trade
 
 # %%
 def dynamic_price_adjustment():
@@ -124,21 +140,33 @@ def dynamic_price_adjustment():
     return: none
     """
     call_price = put_price = 0
+    call_right = put_right = None
     while(True): 
         if call_price != globals.third_best_call_buy_price and globals.third_best_call_buy_price != None:
-            call_trade, call_price = get_trade('C')
-
+            call_right, call_price = get_price('C')
             
             log_msg = f'An cover call order price is already update to {call_price}!\n'
             print(log_msg)
             message_log.write_log(log_msg)
             
         if put_price != globals.third_best_put_buy_price and globals.third_best_put_buy_price != None:
-            put_trade, put_price = get_trade('P')
+            put_right, put_price = get_price('P')
 
             log_msg = f'An cover put order price is already update to {put_price}!\n'
             print(log_msg)
             message_log.write_log(log_msg)
+
+        if call_price+put_price < globals.cover_c_strike:
+            if call_right:
+                call_trade = get_trade(call_right, call_price)
+                log_msg = f'An cover call order placed at price {put_price}!\n'
+                print(log_msg)
+                message_log.write_log(log_msg)
+            if put_right:
+                put_trade = get_trade(put_right, put_price)
+                log_msg = f'An cover put order placed at price {put_price}!\n'
+                print(log_msg)
+                message_log.write_log(log_msg)
             
         positions = globals.api.get_account_openposition(account=globals.api.futopt_account)
         df_positions = pd.DataFrame(positions.data())

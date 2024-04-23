@@ -89,6 +89,7 @@ def update_config():
 
             globals.cover_put_strike = config_data['cover_put_strike']
             globals.cover_call_strike = config_data['cover_call_strike']
+            globals.cover_c_strike = config_data['cover_c_strike']
             globals.cover_quantity = config_data['cover_quantity']
             globals.cover_gap_time = config_data['cover_gap_time']
             globals.sell_call_quantity = config_data['sell_call_quantity']

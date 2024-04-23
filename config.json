@@ -7,8 +7,9 @@
 
     "get_cover_time": "15:47:30",
     "cover_mode": "true",
-    "cover_put_strike": 18000,
-    "cover_call_strike": 18000,
+    "cover_put_strike": 20000,
+    "cover_call_strike": 20000,
+    "cover_c_strike": 40000,
     "cover_quantity": 3,
     "cover_gap_time": 20,
 

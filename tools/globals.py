@@ -13,7 +13,7 @@ def initialize():
     get_simulation_time = None
     simulation_mode = simulation_optionright = simulation_quantity = simulation_action = None
     get_cover_time = None
-    cover_mode = cover_put_strike = cover_call_strike = cover_quantity = cover_gap_time = None
+    cover_mode = cover_put_strike = cover_call_strike = cover_c_strike = cover_quantity = cover_gap_time = None
     sell_call_quantity = None
 
     ### interior setting ###
