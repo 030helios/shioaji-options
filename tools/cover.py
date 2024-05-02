@@ -58,9 +58,15 @@ def judge_symbol(code, bidask):
     put_month_symbol = '0MNOPQRSTUVWX'
     if code[-2:-1] in call_month_symbol:
         # 取第三檔掛單價格，是為了避免夜盤時價差太大可能造成的風險
+        print(globals.api.Contracts.Options[code]['name'])
+        print(bidask['ask_price'])
+        print(bidask['bid_price'])
         globals.third_best_call_buy_price = bidask['ask_price'][2] # 第三檔之最佳買價
         globals.third_best_call_sell_price = bidask['bid_price'][2] # 第三檔之最佳賣價
     elif code[-2:-1] in put_month_symbol:
+        print(globals.api.Contracts.Options[code]['name'])
+        print(bidask['ask_price'])
+        print(bidask['bid_price'])
         globals.third_best_put_buy_price = bidask['ask_price'][2] # 第三檔之最佳買價
         globals.third_best_put_sell_price = bidask['bid_price'][2] # 第三檔之最佳賣價
     # print("call price: ", globals.third_best_call_buy_price, "put price: ", globals.third_best_put_buy_price)
@@ -88,12 +94,12 @@ def get_price(cp):
         optionright = sj.constant.OptionRight.Put
         price = globals.third_best_put_buy_price
     else:
-        return None
+        return None, None, None
 
-    return optionright, price
+    return contract, optionright, price
 
 # %%
-def get_trade(optionright, price):
+def get_trade(contract, optionright, price):
     """
     得到json檔中call put各自的trade資訊 每次只平倉一口
     
@@ -143,14 +149,14 @@ def dynamic_price_adjustment():
     call_right = put_right = None
     while(True): 
         if call_price != globals.third_best_call_buy_price and globals.third_best_call_buy_price != None:
-            call_right, call_price = get_price('C')
+            call_contract, call_right, call_price = get_price('C')
             
             log_msg = f'An cover call order price is already update to {call_price}!\n'
             print(log_msg)
             message_log.write_log(log_msg)
             
         if put_price != globals.third_best_put_buy_price and globals.third_best_put_buy_price != None:
-            put_right, put_price = get_price('P')
+            put_contract, put_right, put_price = get_price('P')
 
             log_msg = f'An cover put order price is already update to {put_price}!\n'
             print(log_msg)
@@ -158,12 +164,12 @@ def dynamic_price_adjustment():
 
         if call_price+put_price < globals.cover_c_strike:
             if call_right:
-                call_trade = get_trade(call_right, call_price)
+                call_trade = get_trade(call_contract, call_right, call_price)
                 log_msg = f'An cover call order placed at price {put_price}!\n'
                 print(log_msg)
                 message_log.write_log(log_msg)
             if put_right:
-                put_trade = get_trade(put_right, put_price)
+                put_trade = get_trade(put_contract, put_right, put_price)
                 log_msg = f'An cover put order placed at price {put_price}!\n'
                 print(log_msg)
                 message_log.write_log(log_msg)
@@ -270,7 +276,21 @@ def subscribe_cover_code(cover_call_code, cover_put_code):
     :return: None
     """
 
+    if hasattr(subscribe_cover_code, "prev_call_code"):
+        globals.api.quote.unsubscribe(
+            subscribe_cover_code.prev_call_code,
+            quote_type = sj.constant.QuoteType.BidAsk, # or 'bidask'
+            version = sj.constant.QuoteVersion.v1, # or 'v1'
+        )
+    if hasattr(subscribe_cover_code, "prev_put_code"):
+        globals.api.quote.unsubscribe(
+            subscribe_cover_code.prev_put_code,
+            quote_type = sj.constant.QuoteType.BidAsk, # or 'bidask'
+            version = sj.constant.QuoteVersion.v1, # or 'v1'
+        )
+
     globals.cover_call_contract = contract.fill_contract(cover_call_code)
+    subscribe_cover_code.prev_call_code = globals.cover_call_contract
     globals.api.quote.subscribe(
         globals.cover_call_contract,
         quote_type = sj.constant.QuoteType.BidAsk, # or 'bidask'
@@ -279,6 +299,7 @@ def subscribe_cover_code(cover_call_code, cover_put_code):
 
     
     globals.cover_put_contract = contract.fill_contract(cover_put_code)
+    subscribe_cover_code.prev_put_code = globals.cover_put_contract
     globals.api.quote.subscribe(
         globals.cover_put_contract,
         quote_type = sj.constant.QuoteType.BidAsk, # or 'bidask'

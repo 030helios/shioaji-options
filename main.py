@@ -289,6 +289,19 @@ def limit_order():
     message_log.write_log(log_msg)
     print('***\n')
 
+def subscribe_cover_code():
+    ### 訂閱平倉檔次之bidask ###
+    pre_call_code = pre_put_code = None
+    while(True):
+        cover_call_code, cover_put_code = cover.get_cover_code()
+        if cover_call_code != pre_call_code or cover_put_code != pre_put_code:
+            print("put: ", cover_put_code  ,", ", globals.api.Contracts.Options[cover_put_code]['name'])
+            print("call: ", cover_call_code,", ", globals.api.Contracts.Options[cover_call_code]['name'])
+            cover.subscribe_cover_code(cover_call_code, cover_put_code)
+
+            pre_call_code, pre_put_code = cover_call_code, cover_put_code
+            time.sleep(15)
+
 # %%
 def main():
     """
@@ -331,16 +344,13 @@ def main():
     price_checker_thread = threading.Thread(target = price_checker)
     price_checker_thread.start()
     
+    update_snap_options_thread = threading.Thread(target = subscribe_cover_code)
+    update_snap_options_thread.start()
+    time.sleep(0.6)
+
     ### 在開盤前預掛前日最接近台灣指數(TSE)收盤價之Sell call漲停單
     limit_order()
-
-    ### 訂閱平倉檔次之bidask ###
-    cover_call_code, cover_put_code = cover.get_cover_code()
-    print("put: ", cover_put_code, "call: ", cover_call_code)
-    cover.subscribe_cover_code(cover_call_code, cover_put_code)
-    
     # print(api.Contracts.Options.TX4)
-
 
 
 # %%
