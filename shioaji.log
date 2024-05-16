@@ -1,2 +1,7 @@
 [E 2024-02-26 16:18:35,854 C:\Users\a9503\anaconda3\envs\shioaji-options\lib\site-packages\shioaji\shioaji.py:595:place_order] {'status': {'status_code': 406}, 'response': {'detail': 'Account Not Acceptable.'}}
 [E 2024-04-13 17:32:34,405 C:\shioaji-options\shioaji-coverer\lib\site-packages\shioaji\shioaji.py:595:place_order] {'status': {'status_code': 406}, 'response': {'detail': 'Account Not Acceptable.'}}
+[E 2024-05-16 17:35:57,739 C:\Users\a9503\anaconda3\envs\shioaji-options\lib\site-packages\shioaji\shioaji.py:595:place_order] {'status': {'status_code': 406}, 'response': {'detail': 'Account Not Acceptable.'}}
+[E 2024-05-16 17:47:14,258 C:\Users\a9503\anaconda3\envs\shioaji-options\lib\site-packages\shioaji\shioaji.py:595:place_order] {'status': {'status_code': 406}, 'response': {'detail': 'Account Not Acceptable.'}}
+[E 2024-05-16 17:49:41,440 C:\Users\a9503\anaconda3\envs\shioaji-options\lib\site-packages\shioaji\shioaji.py:595:place_order] {'status': {'status_code': 406}, 'response': {'detail': 'Account Not Acceptable.'}}
+[E 2024-05-16 17:57:08,951 C:\Users\a9503\anaconda3\envs\shioaji-options\lib\site-packages\shioaji\shioaji.py:595:place_order] {'status': {'status_code': 406}, 'response': {'detail': 'Account Not Acceptable.'}}
+[E 2024-05-16 19:20:20,328 C:\Users\a9503\anaconda3\envs\shioaji-options\lib\site-packages\shioaji\shioaji.py:595:place_order] {'status': {'status_code': 406}, 'response': {'detail': 'Account Not Acceptable.'}}

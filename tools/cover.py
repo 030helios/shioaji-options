@@ -58,15 +58,17 @@ def judge_symbol(code, bidask):
     put_month_symbol = '0MNOPQRSTUVWX'
     if code[-2:-1] in call_month_symbol:
         # 取第三檔掛單價格，是為了避免夜盤時價差太大可能造成的風險
-        print(globals.api.Contracts.Options[code]['name'])
-        print(bidask['ask_price'])
-        print(bidask['bid_price'])
+        print('\r', end='')
+        print(globals.api.Contracts.Options[code]['name'], end=' ')
+        print(bidask['ask_price'],end=' ')
+        print(bidask['bid_price'], end='')
         globals.third_best_call_buy_price = bidask['ask_price'][2] # 第三檔之最佳買價
         globals.third_best_call_sell_price = bidask['bid_price'][2] # 第三檔之最佳賣價
     elif code[-2:-1] in put_month_symbol:
-        print(globals.api.Contracts.Options[code]['name'])
-        print(bidask['ask_price'])
-        print(bidask['bid_price'])
+        print('\r', end='')
+        print(globals.api.Contracts.Options[code]['name'], end=' ')
+        print(bidask['ask_price'], end=' ')
+        print(bidask['bid_price'], end='')
         globals.third_best_put_buy_price = bidask['ask_price'][2] # 第三檔之最佳買價
         globals.third_best_put_sell_price = bidask['bid_price'][2] # 第三檔之最佳賣價
     # print("call price: ", globals.third_best_call_buy_price, "put price: ", globals.third_best_put_buy_price)
